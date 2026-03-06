@@ -25,7 +25,7 @@ else
     sudo apt install zsh -y
 fi
 
-# 2. Install Oh-My-Zsh
+# 2.1 Install Oh-My-Zsh
 if [ -d "$HOME/.oh-my-zsh" ]; then
     echo "✓ Oh-My-Zsh already installed, skipping..."
 else
@@ -33,6 +33,18 @@ else
     # unattended may not work. Removing it will require to run script 2 times : 1st for installing oh-my-zsh, 2nd for the rest.
     # sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" "" --unattended
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+fi
+
+# 2.2 Override .zshrc with the one provided in this repo
+read -r -p "Do you want to override ~/.zshrc with the one provided in this repo? (Y/n): " override_zshrc
+override_zshrc=${override_zshrc:-Y}
+
+if [[ "$override_zshrc" =~ ^[Yy]$ ]]; then
+  if [[ -f "$HOME/.zshrc" || -L "$HOME/.zshrc" ]]; then
+    cp "$HOME/.zshrc" "$HOME/.zshrc.bak.$(date +%s)"
+  fi
+
+  ln -sf "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/zshrc" "$HOME/.zshrc"
 fi
 
 # 3. Clone plugins
@@ -45,13 +57,13 @@ echo "Installing plugins..."
 [ -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && echo "✓ zsh-syntax-highlighting already installed" || git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
 [ -d "$ZSH_CUSTOM/plugins/zsh-completions" ] && echo "✓ zsh-completions already installed" || git clone https://github.com/zsh-users/zsh-completions.git $ZSH_CUSTOM/plugins/zsh-completions
 
-echo "Enabling plugins..."
-# touch ~/.zshrc
-sed -i 's/plugins=(.*)/plugins=(git z dirhistory colorize colored-man-pages sudo zsh-syntax-highlighting zsh-autosuggestions zsh-completions)/' ~/.zshrc
+# sed -i will break the symlink. We will change it at step 6
+# sed -i 's/plugins=(.*)/plugins=(git z dirhistory colorize colored-man-pages sudo zsh-syntax-highlighting zsh-autosuggestions zsh-completions)/' ~/.zshrc
 
 # 4. Install fonts
 echo "Installing powerline fonts..."
 sudo apt-get install fonts-powerline
+
 # echo "Installing MesloLGS NF fonts..."
 # mkdir -p ~/.local/share/fonts
 # [ -f ~/.local/share/fonts/MesloLGSNFRegular.ttf ] && echo "✓ MesloLGS NF Regular already installed" || wget -O ~/.local/share/fonts/MesloLGSNFRegular.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf
@@ -87,16 +99,23 @@ fi
 #     echo "Installing Powerlevel10k theme..."
 #     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 # fi
-mkdir -p "$ZSH_CUSTOM/themes"
-cp ./agnoster.zsh-theme "$ZSH_CUSTOM/themes/"
-sed -i 's/ZSH_THEME=".*"/ZSH_THEME="agnoster\/agnoster"/' ~/.zshrc
+mkdir -p "$ZSH_CUSTOM/themes/agnoster"
+ln -sf "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/agnoster.zsh-theme" "$ZSH_CUSTOM/themes/agnoster/agnoster.zsh-theme"
 
-# 6. Set zsh as default
+# 6. Enable plugins and theme
+if [[ "$override_zshrc" =~ ^[Nn]$ ]]; then
+  echo "Enabling plugins, theme..."
+  touch ~/.zshrc
+  sed -i 's/plugins=(.*)/plugins=(git z dirhistory colorize colored-man-pages sudo zsh-syntax-highlighting zsh-autosuggestions zsh-completions)/' ~/.zshrc
+  sed -i 's/ZSH_THEME=".*"/ZSH_THEME="agnoster\/agnoster"/' ~/.zshrc
+fi
+
+# 7. Set zsh as default
 chsh -s $(which zsh)
-
 
 echo "Setup complete!"
 exit 0
+
 # 7. 
 echo "Attempting to set MesloLGS NF font in terminal emulator..."
 
