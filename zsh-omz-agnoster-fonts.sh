@@ -44,9 +44,9 @@ if [[ "$override_zshrc" =~ ^[Yy]$ ]]; then
     cp "$HOME/.zshrc" "$HOME/.zshrc.bak.$(date +%s)"
   fi
 
-  ln -sf "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/zshrc" "$HOME/.zshrc"
+  ln -sf "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dotfiles/zshrc/.zshrc" "$HOME/.zshrc"
 fi
-
+exit 1
 # 3. Clone plugins
 echo "Setting ZSH_CUSTOM if not already set..."
 export ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
