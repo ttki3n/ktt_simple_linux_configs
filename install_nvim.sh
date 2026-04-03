@@ -30,8 +30,9 @@ tar -xzf $FILE_NAME -C "$INSTALL_DIR" --strip-components=1
 
 # 4. Create symlink
 # This creates a symlink in ~/.local/bin (ensure this is in your $PATH)
-# mkdir -p "$HOME/.local/bin"
-NVIM_PATH="/usr/bin/nvim"
+mkdir -p "$HOME/.local/bin"
+# NVIM_PATH="/usr/bin/nvim"
+NVIM_PATH="$HOME/.local/bin/nvim"
 sudo ln -sf "$INSTALL_DIR/bin/nvim" "${NVIM_PATH}"
 
 echo "------------------------------------------------"
