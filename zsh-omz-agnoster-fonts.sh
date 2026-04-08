@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Zsh, Oh-My-Zsh and agnoster setup script"
+echo "Zsh, Oh-My-Zsh and agnoster, p10k setup script"
 sudo apt update
 
 # 1. Install tools
@@ -36,17 +36,17 @@ else
 fi
 
 # 2.2 Override .zshrc with the one provided in this repo
-read -r -p "Do you want to override ~/.zshrc with the one provided in this repo? (Y/n): " override_zshrc
-override_zshrc=${override_zshrc:-Y}
+#read -r -p "Do you want to override ~/.zshrc with the one provided in this repo? (Y/n): " override_zshrc
+#override_zshrc=${override_zshrc:-Y}
+#
+#if [[ "$override_zshrc" =~ ^[Yy]$ ]]; then
+#  if [[ -f "$HOME/.zshrc" || -L "$HOME/.zshrc" ]]; then
+#    cp "$HOME/.zshrc" "$HOME/.zshrc.bak.$(date +%s)"
+#  fi
+#
+#  ln -sf "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dotfiles/zshrc/.zshrc" "$HOME/.zshrc"
+#fi
 
-if [[ "$override_zshrc" =~ ^[Yy]$ ]]; then
-  if [[ -f "$HOME/.zshrc" || -L "$HOME/.zshrc" ]]; then
-    cp "$HOME/.zshrc" "$HOME/.zshrc.bak.$(date +%s)"
-  fi
-
-  ln -sf "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dotfiles/zshrc/.zshrc" "$HOME/.zshrc"
-fi
-exit 1
 # 3. Clone plugins
 echo "Setting ZSH_CUSTOM if not already set..."
 export ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
@@ -61,15 +61,21 @@ echo "Installing plugins..."
 # sed -i 's/plugins=(.*)/plugins=(git z dirhistory colorize colored-man-pages sudo zsh-syntax-highlighting zsh-autosuggestions zsh-completions)/' ~/.zshrc
 
 # 4. Install fonts
-echo "Installing powerline fonts..."
-sudo apt-get install fonts-powerline
+echo "Installing MesloLGS NF fonts..."
+mkdir -p ~/.local/share/fonts
+[ -f ~/.local/share/fonts/MesloLGSNFRegular.ttf ] && echo "✓ MesloLGS NF Regular already installed" || wget -O ~/.local/share/fonts/MesloLGSNFRegular.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf
+[ -f ~/.local/share/fonts/MesloLGSNFBold.ttf ] && echo "✓ MesloLGS NF Bold already installed" || wget -O ~/.local/share/fonts/MesloLGSNFBold.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf
+[ -f ~/.local/share/fonts/MesloLGSNFItalic.ttf ] && echo "✓ MesloLGS NF Italic already installed" || wget -O ~/.local/share/fonts/MesloLGSNFItalic.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf
+[ -f ~/.local/share/fonts/MesloLGSNFBoldItalic.ttf ] && echo "✓ MesloLGS NF Bold Italic already installed" || wget -O ~/.local/share/fonts/MesloLGSNFBoldItalic.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf
 
-# echo "Installing MesloLGS NF fonts..."
-# mkdir -p ~/.local/share/fonts
-# [ -f ~/.local/share/fonts/MesloLGSNFRegular.ttf ] && echo "✓ MesloLGS NF Regular already installed" || wget -O ~/.local/share/fonts/MesloLGSNFRegular.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf
-# [ -f ~/.local/share/fonts/MesloLGSNFBold.ttf ] && echo "✓ MesloLGS NF Bold already installed" || wget -O ~/.local/share/fonts/MesloLGSNFBold.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf
-# [ -f ~/.local/share/fonts/MesloLGSNFItalic.ttf ] && echo "✓ MesloLGS NF Italic already installed" || wget -O ~/.local/share/fonts/MesloLGSNFItalic.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf
-# [ -f ~/.local/share/fonts/MesloLGSNFBoldItalic.ttf ] && echo "✓ MesloLGS NF Bold Italic already installed" || wget -O ~/.local/share/fonts/MesloLGSNFBoldItalic.ttf https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf
+read -p "Do you want to install Powerline fonts? [y/N]: " response
+response=${response,,}
+if [[ "$response" == "y" || "$response" == "yes" ]]; then
+    echo "Starting installation of fonts-powerline..."
+    sudo apt-get install -y fonts-powerline
+else
+    echo "Installation skipped."
+fi
 
 # Check if fc-cache is available
 if command -v fc-cache &> /dev/null; then
@@ -93,22 +99,23 @@ else
 fi
 
 # 5. Install theme
-# if [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]; then
-#     echo "✓ Powerlevel10k already installed, skipping..."
-# else
-#     echo "Installing Powerlevel10k theme..."
-#     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-# fi
+if [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]; then
+    echo "✓ Powerlevel10k already installed, skipping..."
+else
+    echo "Installing Powerlevel10k theme..."
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+fi
+
 mkdir -p "$ZSH_CUSTOM/themes/agnoster"
 ln -sf "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/agnoster.zsh-theme" "$ZSH_CUSTOM/themes/agnoster/agnoster.zsh-theme"
 
 # 6. Enable plugins and theme
-if [[ "$override_zshrc" =~ ^[Nn]$ ]]; then
-  echo "Enabling plugins, theme..."
-  touch ~/.zshrc
-  sed -i 's/plugins=(.*)/plugins=(git z dirhistory colorize colored-man-pages sudo zsh-syntax-highlighting zsh-autosuggestions zsh-completions)/' ~/.zshrc
-  sed -i 's/ZSH_THEME=".*"/ZSH_THEME="agnoster\/agnoster"/' ~/.zshrc
-fi
+# if [[ "$override_zshrc" =~ ^[Nn]$ ]]; then
+#   echo "Enabling plugins, theme..."
+#   touch ~/.zshrc
+#   sed -i 's/plugins=(.*)/plugins=(git z dirhistory colorize colored-man-pages sudo zsh-syntax-highlighting zsh-autosuggestions zsh-completions)/' ~/.zshrc
+#   sed -i 's/ZSH_THEME=".*"/ZSH_THEME="agnoster\/agnoster"/' ~/.zshrc
+# fi
 
 # 7. Set zsh as default
 chsh -s $(which zsh)
